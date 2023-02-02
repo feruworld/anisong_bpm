@@ -14,16 +14,25 @@ def main():
 
     spotify = spotipy.Spotify(client_credentials_manager = ccm, auth=token)
 
-    anisong_playlist = 'https://open.spotify.com/playlist/3pt1xO7l9OMpZ7ZWBj5KtT'
+    anisong_playlists = ['https://open.spotify.com/playlist/3pt1xO7l9OMpZ7ZWBj5KtT', 'https://open.spotify.com/playlist/1HLnVfIeVziDL5EVo8OnBC', 'https://open.spotify.com/playlist/1ANQ4WkjGggwVpILHZwWbV', 'https://open.spotify.com/playlist/3c9VYc2FoCQnOcchRuiUV6',
+    'https://open.spotify.com/playlist/3PPXWtqZWEEJXNcz8Xtyop', 'https://open.spotify.com/playlist/6DiHunAMQjoUTTfW1X4Emg', 'https://open.spotify.com/playlist/7KMUjApZXF2G14DE5cKDnr']
 
     set_tempo = 175
     set_tempo_range = 5
-    feature_df = fetch_track_feature(spotify, anisong_playlist)
 
-    feature_df.to_csv('01_result.csv')
+    all_feature_df = pd.DataFrame()
+    for anisong_playlist in anisong_playlists:
+        tmp_feature_df = fetch_track_feature(spotify, anisong_playlist)
+        all_feature_df = pd.concat([all_feature_df, tmp_feature_df])
 
-    desired_tempo_df = feature_df[abs(feature_df['tempo']-set_tempo)<=set_tempo_range]
-    creat_playlist(spotify, 'Anisong_BMP170-180', list(desired_tempo_df['track_url'].values))
+    # trackURLから重複削除
+    all_feature_df.drop_duplicates(subset=['track_url'], inplace=True)
+
+    all_feature_df.to_csv('01_result.csv')
+
+    # BPMで絞り込みプレイリスト作成
+    desired_tempo_df = all_feature_df[abs(all_feature_df['tempo']-set_tempo)<=set_tempo_range]
+    creat_playlist(spotify, 'Anisong_BPM170-180', list(desired_tempo_df['track_url'].values))
 
 
 def fetch_track_feature(spotify, original_play_list):
@@ -34,7 +43,7 @@ def fetch_track_feature(spotify, original_play_list):
 
     for offset in np.arange(0, track_num, 100):
         print(offset)
-        list_data = spotify.playlist_tracks(original_play_list, offset=offset, limit=5) # limit不要
+        list_data = spotify.playlist_tracks(original_play_list, offset=offset)
         tmp_feature_df = featch_withoffset(spotify, list_data)
         all_feature_df = pd.concat([all_feature_df, tmp_feature_df])
 
