@@ -14,8 +14,8 @@ def main():
 
     spotify = spotipy.Spotify(client_credentials_manager = ccm, auth=token)
 
-    anisong_playlists = ['https://open.spotify.com/playlist/3pt1xO7l9OMpZ7ZWBj5KtT', 'https://open.spotify.com/playlist/1HLnVfIeVziDL5EVo8OnBC', 'https://open.spotify.com/playlist/1ANQ4WkjGggwVpILHZwWbV', 'https://open.spotify.com/playlist/3c9VYc2FoCQnOcchRuiUV6',
-    'https://open.spotify.com/playlist/3PPXWtqZWEEJXNcz8Xtyop', 'https://open.spotify.com/playlist/6DiHunAMQjoUTTfW1X4Emg', 'https://open.spotify.com/playlist/7KMUjApZXF2G14DE5cKDnr']
+    anisong_playlists = ['https://open.spotify.com/playlist/1ANQ4WkjGggwVpILHZwWbV', 'https://open.spotify.com/playlist/3c9VYc2FoCQnOcchRuiUV6',
+    'https://open.spotify.com/playlist/3PPXWtqZWEEJXNcz8Xtyop']
 
     set_tempo = 175
     set_tempo_range = 5
@@ -25,10 +25,10 @@ def main():
         tmp_feature_df = fetch_track_feature(spotify, anisong_playlist)
         all_feature_df = pd.concat([all_feature_df, tmp_feature_df])
 
-    # trackURLから重複削除
-    all_feature_df.drop_duplicates(subset=['track_url'], inplace=True)
+        # trackURLから重複削除
+        all_feature_df.drop_duplicates(subset=['track_url'], inplace=True)
 
-    all_feature_df.to_csv('01_result.csv')
+        all_feature_df.to_csv('01_result.csv')
 
     # BPMで絞り込みプレイリスト作成
     desired_tempo_df = all_feature_df[abs(all_feature_df['tempo']-set_tempo)<=set_tempo_range]
@@ -42,7 +42,7 @@ def fetch_track_feature(spotify, original_play_list):
     all_feature_df = pd.DataFrame()
 
     for offset in np.arange(0, track_num, 100):
-        print(offset)
+        print(offset, track_num)
         list_data = spotify.playlist_tracks(original_play_list, offset=offset)
         tmp_feature_df = featch_withoffset(spotify, list_data)
         all_feature_df = pd.concat([all_feature_df, tmp_feature_df])
@@ -58,7 +58,6 @@ def featch_withoffset(spotify, list_data):
     for item in list_data['items']:
         track_url = item['track']['external_urls']['spotify']
         track_name = item['track']['name']
-        print(track_name)
 
         urls_list.append(track_url)
         anisong_names.append(track_name)
