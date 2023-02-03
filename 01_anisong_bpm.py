@@ -30,10 +30,6 @@ def main():
 
         all_feature_df.to_csv('01_result.csv')
 
-    # BPMで絞り込みプレイリスト作成
-    desired_tempo_df = all_feature_df[abs(all_feature_df['tempo']-set_tempo)<=set_tempo_range]
-    creat_playlist(spotify, 'Anisong_BPM170-180', list(desired_tempo_df['track_url'].values))
-
 
 def fetch_track_feature(spotify, original_play_list):
     list_data = spotify.playlist_tracks(original_play_list)
@@ -49,7 +45,6 @@ def fetch_track_feature(spotify, original_play_list):
 
 
     return all_feature_df
-
 
 
 def featch_withoffset(spotify, list_data):
@@ -85,12 +80,6 @@ def featch_withoffset(spotify, list_data):
     feature_df['track_url'] = urls_list
 
     return feature_df
-
-
-def creat_playlist(spotify, playlist_name, urls):
-    playlist = spotify.user_playlist_create(apikey.username, name = playlist_name)
-    playlist_url = playlist['external_urls']['spotify']
-    spotify.user_playlist_add_tracks(apikey.username, playlist_url, urls)
 
 
 if __name__=="__main__":
