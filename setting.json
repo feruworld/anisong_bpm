@@ -1,0 +1,5 @@
+{
+    "set_tempo": 167.5,
+    "set_tempo_range": 2.5,
+    "track_features": ["01_result_anisong500.csv", "01_result_sonyavex.csv", "01_result.csv"]
+}
