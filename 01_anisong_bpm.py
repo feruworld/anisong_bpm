@@ -1,4 +1,5 @@
 import time
+import json
 
 import numpy as np
 import pandas as pd
@@ -7,6 +8,9 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 import apikey
 
+json_file = open('setting.json', 'r')
+setting = json.load(json_file)
+
 def main():
     ccm = SpotifyClientCredentials(client_id = apikey.my_id, client_secret = apikey.my_secret)
     scope = 'user-library-read user-read-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
@@ -14,21 +18,18 @@ def main():
 
     spotify = spotipy.Spotify(client_credentials_manager = ccm, auth=token)
 
-    anisong_playlists = ['https://open.spotify.com/playlist/1ANQ4WkjGggwVpILHZwWbV', 'https://open.spotify.com/playlist/3c9VYc2FoCQnOcchRuiUV6',
-    'https://open.spotify.com/playlist/3PPXWtqZWEEJXNcz8Xtyop']
-
-    set_tempo = 175
-    set_tempo_range = 5
+    anisong_playlists = setting['playlist_url']
+    save_filenames = setting['track_features']
 
     all_feature_df = pd.DataFrame()
-    for anisong_playlist in anisong_playlists:
+    for anisong_playlist, save_filename in zip(anisong_playlists, save_filenames):
         tmp_feature_df = fetch_track_feature(spotify, anisong_playlist)
         all_feature_df = pd.concat([all_feature_df, tmp_feature_df])
 
         # trackURLから重複削除
         all_feature_df.drop_duplicates(subset=['track_url'], inplace=True)
 
-        all_feature_df.to_csv('01_result.csv')
+        all_feature_df.to_csv(save_filename)
 
 
 def fetch_track_feature(spotify, original_play_list):

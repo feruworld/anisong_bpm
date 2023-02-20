@@ -1,4 +1,5 @@
 import time
+import json
 
 import numpy as np
 import pandas as pd
@@ -7,6 +8,9 @@ from spotipy.oauth2 import SpotifyClientCredentials
 
 import apikey
 
+json_file = open('setting.json', 'r')
+setting = json.load(json_file)
+
 def main():
     ccm = SpotifyClientCredentials(client_id = apikey.my_id, client_secret = apikey.my_secret)
     scope = 'user-library-read user-read-playback-state playlist-read-private user-read-recently-played playlist-read-collaborative playlist-modify-public playlist-modify-private'
@@ -14,8 +18,8 @@ def main():
 
     spotify = spotipy.Spotify(client_credentials_manager = ccm, auth=token)
 
-    result_csvs = ['01_result_anisong500.csv', '01_result_sonyavex.csv', '01_result.csv']
-
+    result_csvs = setting['track_features']
+   
     all_feature_df = pd.DataFrame()
     for result_csv in result_csvs:
         tmp_feature_df = pd.read_csv(result_csv)
